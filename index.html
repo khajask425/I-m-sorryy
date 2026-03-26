@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>From My Side 💔</title>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Dancing+Script:wght@400;600;700&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html,body{width:100%;height:100%;overflow:hidden;font-family:'Quicksand',sans-serif;background:#0a0812}
+
+    /* ═══ RAIN CANVAS ═══ */
+    #rain-canvas{position:fixed;inset:0;pointer-events:none;z-index:0}
+
+    /* ═══ SCREENS ═══ */
+    .sc{position:fixed;inset:0;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2rem;opacity:0;pointer-events:none;transition:opacity .8s}
+    .sc.on{opacity:1;pointer-events:auto}
+
+    /* ═══ INTRO ═══ */
+    #intro{
+      background:radial-gradient(ellipse at 50% 40%,#1e1535 0%,#120e20 50%,#0a0812 100%);
+      gap:1.2rem;
+    }
+    .i-cube{width:clamp(80px,20vw,130px);height:clamp(80px,20vw,130px);transform-style:preserve-3d;animation:cubeRot 8s ease-in-out infinite;perspective:600px}
+    .i-cube .face{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:clamp(2.2rem,7vw,3.5rem);background:rgba(248,164,190,.06);border:1px solid rgba(248,164,190,.15);border-radius:18px;backdrop-filter:blur(6px)}
+    .i-cube .f1{transform:rotateY(0deg) translateZ(65px)}.i-cube .f2{transform:rotateY(90deg) translateZ(65px)}.i-cube .f3{transform:rotateY(180deg) translateZ(65px)}.i-cube .f4{transform:rotateY(270deg) translateZ(65px)}
+    @keyframes cubeRot{0%{transform:rotateY(0) rotateX(5deg)}25%{transform:rotateY(90deg) rotateX(-5deg)}50%{transform:rotateY(180deg) rotateX(5deg)}75%{transform:rotateY(270deg) rotateX(-5deg)}100%{transform:rotateY(360deg) rotateX(5deg)}}
+
+    #intro h1{font-family:'Playfair Display',serif;font-size:clamp(1.4rem,4vw,2.4rem);color:rgba(255,255,255,.88);line-height:1.4}
+    #intro h1 .nm{font-family:'Dancing Script',cursive;color:#f8a4be;font-size:1.25em;display:block;text-shadow:0 0 30px rgba(248,164,190,.4)}
+    #intro p{color:rgba(255,255,255,.42);font-size:.88rem;max-width:360px;line-height:1.7}
+    .btn{padding:.8rem 2rem;border-radius:50px;border:none;font-family:'Quicksand',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;transition:transform .2s,box-shadow .2s}
+    .btn:hover{transform:scale(1.05)}
+    .btn-go{background:linear-gradient(135deg,#f8a4be,#c084fc);color:#fff;box-shadow:0 6px 25px rgba(248,164,190,.35);animation:btnPulse 2s ease-in-out infinite}
+    @keyframes btnPulse{0%,100%{box-shadow:0 6px 25px rgba(248,164,190,.35)}50%{box-shadow:0 8px 40px rgba(248,164,190,.55)}}
+
+    /* ═══ STAGE ═══ */
+    #stage{overflow:hidden}
+
+    .scene-bg{position:absolute;inset:0;transition:background 2s ease}
+    .scene-bg.mood-hopeful{background:linear-gradient(180deg,#ff9a76 0%,#ffc4a3 15%,#fce4d6 30%,#87ceeb 50%,#b8d4e3 70%,#4a7c59 85%,#2d5a3d 100%)}
+    .scene-bg.mood-waiting{background:linear-gradient(180deg,#e8a87c 0%,#d4956b 15%,#c98b6e 30%,#8fa4b5 50%,#7a93a5 70%,#3d6b4d 85%,#2a4e38 100%)}
+    .scene-bg.mood-sad{background:linear-gradient(180deg,#8b7ea6 0%,#7a6d95 15%,#6d6088 30%,#5a6e80 50%,#4d5f70 70%,#3a5040 85%,#2a3a2e 100%)}
+    .scene-bg.mood-hurt{background:linear-gradient(180deg,#5c5070 0%,#4d4360 15%,#403752 30%,#3a4555 50%,#2e3845 70%,#2a3530 85%,#1e2622 100%)}
+    .scene-bg.mood-dark{background:linear-gradient(180deg,#2a2040 0%,#221a35 15%,#1a1428 30%,#15182a 50%,#111520 70%,#161a16 85%,#0e120e 100%)}
+
+    .celestial{position:absolute;top:6%;right:15%;width:clamp(45px,8vw,70px);height:clamp(45px,8vw,70px);border-radius:50%;transition:all 2s ease;animation:celestFloat 5s ease-in-out infinite}
+    .celestial.sun{background:radial-gradient(circle at 40% 40%,#fff8dc,#ffdb58,#ffa500);box-shadow:0 0 40px rgba(255,165,0,.4),0 0 80px rgba(255,165,0,.15)}
+    .celestial.sunset{background:radial-gradient(circle at 40% 40%,#ffe0b2,#ff8a65,#e64a19);box-shadow:0 0 40px rgba(230,74,25,.3)}
+    .celestial.moon{background:radial-gradient(circle at 35% 35%,#fef3c7,#fde68a);box-shadow:0 0 25px rgba(253,230,138,.2)}
+    @keyframes celestFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+
+    .cloud{position:absolute;background:rgba(255,255,255,.12);border-radius:50px;filter:blur(2px)}
+    .c1{width:120px;height:35px;top:12%;left:5%;animation:drift 20s linear infinite}
+    .c2{width:90px;height:28px;top:8%;left:35%;animation:drift 25s linear infinite 5s}
+    .c3{width:100px;height:30px;top:18%;left:65%;animation:drift 22s linear infinite 10s}
+    @keyframes drift{0%{transform:translateX(0)}100%{transform:translateX(calc(100vw + 120px))}}
+
+    .scenery-ground{position:absolute;bottom:0;left:0;right:0;height:35%;transition:background 2s}
+    .scenery-ground.green{background:linear-gradient(180deg,#5a8f5a 0%,#3d6b3d 30%,#2d5a2d 100%)}
+    .scenery-ground.dusk{background:linear-gradient(180deg,#4a6b4a 0%,#3a5a3a 30%,#2a4a2a 100%)}
+    .scenery-ground.night{background:linear-gradient(180deg,#2a3a2a 0%,#1e2e1e 30%,#141e14 100%)}
+
+    .tree{position:absolute;bottom:28%}
+    .tree-trunk{width:8px;height:40px;background:#3a2a1a;margin:0 auto;border-radius:2px}
+    .tree-top{width:50px;height:50px;background:#2d5a2d;border-radius:50%;margin-bottom:-5px;transition:background 2s}
+    .tree-top.dark{background:#1a3a1a}
+    .t1{left:3%}.t2{left:25%}.t3{right:30%}.t4{right:5%}
+
+    .flowers{position:absolute;bottom:26%;left:0;right:0;height:20px;display:flex;justify-content:space-around;align-items:end}
+    .flower{font-size:clamp(.7rem,1.5vw,1rem);animation:sway 3s ease-in-out infinite}
+    .flower:nth-child(2n){animation-delay:1s}
+    @keyframes sway{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
+
+    .star{position:absolute;width:2px;height:2px;border-radius:50%;background:#fff;opacity:0;transition:opacity 2s}
+    .star.show{opacity:1;animation:tw 2s ease-in-out infinite}
+    @keyframes tw{0%,100%{opacity:.2}50%{opacity:.8}}
+
+    .day-lbl{position:absolute;top:clamp(.6rem,2vh,1.5rem);left:50%;transform:translateX(-50%);font-family:'Dancing Script',cursive;font-size:clamp(1.1rem,3vw,1.6rem);color:rgba(255,255,255,.7);opacity:0;transition:opacity .6s;white-space:nowrap;text-shadow:0 2px 10px rgba(0,0,0,.3);z-index:20}
+    .day-lbl.on{opacity:1}
+
+    /* ─── CHARACTERS (Canvas-based, no white bg) ─── */
+    .char{position:absolute;bottom:6%;display:flex;flex-direction:column;align-items:center;gap:.2rem;opacity:0;transition:opacity .6s,transform .6s;transform:translateY(15px);z-index:15}
+    .char.on{opacity:1;transform:translateY(0)}
+    .char-img{width:clamp(90px,20vw,160px);height:auto;object-fit:contain;mix-blend-mode:multiply;filter:drop-shadow(0 5px 15px rgba(0,0,0,.4));transition:all .5s ease}
+    .char-name{font-size:.68rem;font-weight:700;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.12em;text-shadow:0 1px 5px rgba(0,0,0,.3)}
+
+    #boy-char{left:clamp(4%,8vw,12%)}
+    #girl-char{right:clamp(4%,8vw,12%)}
+
+    #boy-char.typing .char-img{animation:typing .5s ease-in-out infinite}
+    @keyframes typing{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-3px) rotate(-1.5deg)}}
+    #boy-char.sad .char-img{filter:drop-shadow(0 5px 15px rgba(0,0,0,.4)) saturate(.8)}
+    #boy-char.hurt .char-img{filter:drop-shadow(0 5px 15px rgba(0,0,0,.4)) saturate(.65) brightness(.95)}
+    #boy-char.crying .char-img{filter:drop-shadow(0 5px 15px rgba(0,0,0,.4)) saturate(.5) brightness(.85)}
+
+    #girl-char.swiping .char-img{animation:swipeG .4s ease-in-out}
+    @keyframes swipeG{0%{transform:rotate(0)}35%{transform:rotate(4deg) translateX(4px)}100%{transform:rotate(0)}}
+
+    /* ── NOTIFICATION ── */
+    .notif-pop{position:absolute;right:clamp(1%,5vw,8%);bottom:50%;background:rgba(0,0,0,.65);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.15);border-radius:16px;padding:.55rem .75rem;display:flex;align-items:center;gap:.45rem;min-width:clamp(155px,34vw,220px);opacity:0;transform:translateY(10px) scale(.9);transition:all .4s ease;z-index:30;box-shadow:0 10px 35px rgba(0,0,0,.4)}
+    .notif-pop.on{opacity:1;transform:translateY(0) scale(1)}
+    .notif-pop.gone{opacity:0;transform:translateX(90px) rotateZ(5deg) scale(.7);transition:.4s}
+    .np-ico{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#25d366,#128c7e);display:flex;align-items:center;justify-content:center;font-size:.8rem;flex-shrink:0}
+    .np-body{flex:1}.np-app{font-size:.52rem;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.06em}
+    .np-text{font-size:.72rem;color:rgba(255,255,255,.75)}
+
+    /* ── FLYING MSG ── */
+    .fly-bubble{position:absolute;pointer-events:none;z-index:25;display:flex;align-items:center;gap:.2rem;opacity:0;font-size:1.2rem}
+
+    /* ── THOUGHT ── */
+    .thought{position:absolute;bottom:53%;left:clamp(3%,5vw,8%);background:rgba(0,0,0,.55);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.12);border-radius:14px 14px 14px 4px;padding:.5rem .7rem;font-size:.78rem;color:rgba(255,255,255,.75);max-width:clamp(130px,26vw,185px);opacity:0;transform:translateY(6px);transition:all .5s;line-height:1.5;box-shadow:0 6px 20px rgba(0,0,0,.4);z-index:20}
+    .thought.on{opacity:1;transform:translateY(0)}
+    .thought::before{content:'';position:absolute;bottom:-7px;left:12px;width:7px;height:7px;border-radius:50%;background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.1)}
+    .thought::after{content:'';position:absolute;bottom:-13px;left:8px;width:4px;height:4px;border-radius:50%;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.08)}
+
+    /* ── HEARTBREAK ── */
+    .hb{position:absolute;pointer-events:none;z-index:40;font-size:clamp(1rem,2.5vw,1.3rem);opacity:0}
+
+    /* Petals */
+    .petal{position:absolute;pointer-events:none;z-index:3;width:8px;height:8px;background:#f8a4be;border-radius:50% 0 50% 50%;opacity:.4;animation:petalFall linear infinite}
+    @keyframes petalFall{0%{transform:translateY(-20px) rotate(0) translateX(0)}50%{transform:translateY(50vh) rotate(180deg) translateX(30px)}100%{transform:translateY(100vh) rotate(360deg) translateX(-10px)}}
+
+    /* ═══ EFFORTS SECTION ═══ */
+    #efforts{
+      background:radial-gradient(ellipse at 50% 20%,#1e1535 0%,#120e20 40%,#0a0812 100%);
+      overflow-y:auto;justify-content:flex-start;padding:0;
+    }
+    .et{font-family:'Playfair Display',serif;font-size:clamp(1.3rem,4vw,2rem);color:rgba(255,255,255,.85);text-align:center;padding:3rem 2rem 1rem;line-height:1.4}
+    .et .ac{font-family:'Dancing Script',cursive;color:#f8a4be;display:block;font-size:1.1em;margin-top:.3rem;text-shadow:0 0 15px rgba(248,164,190,.2)}
+    .es{text-align:center;color:rgba(255,255,255,.35);font-size:.85rem;max-width:380px;margin:0 auto;line-height:1.7;padding:0 1.5rem 1.5rem}
+    .el{max-width:440px;width:100%;margin:0 auto;padding:0 1rem 1.5rem;display:flex;flex-direction:column;gap:.7rem}
+    .ei{display:flex;gap:.6rem;align-items:flex-start;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:.9rem;opacity:0;transform:translateX(-15px);transition:all .5s}
+    .ei.on{opacity:1;transform:translateX(0)}
+    .ei .eic{font-size:1.2rem;flex-shrink:0;margin-top:.05rem}
+    .ei .ew{font-size:.85rem;font-weight:600;color:rgba(255,255,255,.75)}
+    .ei .ed{font-size:.74rem;color:rgba(255,255,255,.38);line-height:1.4;margin-top:.1rem}
+    .ei .eb{font-size:.55rem;font-weight:700;color:#f87171;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.15);border-radius:20px;padding:.15rem .45rem;margin-top:.3rem;display:inline-flex;align-items:center;gap:.3rem}
+    .ei .eb::before{content:'';width:5px;height:5px;border-radius:50%;background:#f87171;animation:blink 1.4s ease-in-out infinite}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+
+    .ef{text-align:center;padding:1.5rem 2rem 2rem;max-width:440px;margin:0 auto}
+    .ef .efe{font-size:2.5rem;margin-bottom:.7rem}
+    .ef h2{font-family:'Dancing Script',cursive;font-size:clamp(1.3rem,4vw,1.8rem);color:#f8a4be;margin-bottom:.8rem;text-shadow:0 0 15px rgba(248,164,190,.15)}
+    .ef p{color:rgba(255,255,255,.5);font-size:.88rem;line-height:1.9}
+    .ef p strong{color:rgba(255,255,255,.75)}
+    .ef .sg{font-family:'Dancing Script',cursive;font-size:1.2rem;color:rgba(255,255,255,.35);margin-top:1.2rem}
+    .ef .hs{font-size:1.1rem;letter-spacing:.4rem;margin-top:.5rem}
+
+    /* ═══ RESPONSE SECTION ═══ */
+    .resp-box{max-width:440px;width:100%;margin:1rem auto 3rem;padding:0 1rem}
+    .resp-box label{font-family:'Dancing Script',cursive;font-size:1.2rem;color:#f8a4be;display:block;margin-bottom:.6rem;text-align:center}
+    .resp-chips{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin-bottom:.8rem}
+    .resp-chip{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:30px;padding:.45rem .9rem;color:rgba(255,255,255,.6);font-size:.8rem;cursor:pointer;transition:all .25s;user-select:none}
+    .resp-chip:hover{background:rgba(248,164,190,.12);border-color:rgba(248,164,190,.3);color:#f8a4be}
+    .resp-chip.sel{background:rgba(248,164,190,.18);border-color:#f8a4be;color:#f8a4be}
+    .resp-ta{width:100%;min-height:80px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:.8rem;color:#e2e8f0;font-family:'Quicksand',sans-serif;font-size:.9rem;line-height:1.5;resize:vertical;outline:none;transition:border-color .3s}
+    .resp-ta:focus{border-color:rgba(248,164,190,.4)}
+    .resp-ta::placeholder{color:rgba(255,255,255,.2)}
+    .btn-send{margin-top:.8rem;width:100%;background:linear-gradient(135deg,#f8a4be,#c084fc);color:#fff;box-shadow:0 6px 25px rgba(248,164,190,.3)}
+    .send-ok{text-align:center;color:rgba(255,255,255,.5);font-size:.9rem;padding:1rem;line-height:1.7;display:none}
+    .send-ok.on{display:block}
+  </style>
+</head>
+<body>
+
+<canvas id="rain-canvas"></canvas>
+
+<!-- INTRO -->
+<div class="sc on" id="intro">
+  <div class="i-cube"><div class="face f1">💔</div><div class="face f2">📱</div><div class="face f3">😢</div><div class="face f4">💬</div></div>
+  <h1><span class="nm">My Roja 🤗</span>This is how it looked from my side</h1>
+  <p>A short animated story. Just watch what I went through.</p>
+  <button class="btn btn-go" id="btn-go">Watch the Story ▶</button>
+</div>
+
+<!-- STAGE -->
+<div class="sc" id="stage">
+  <div class="scene-bg mood-hopeful" id="scene-bg"></div>
+  <div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div>
+  <div class="celestial sun" id="celestial"></div>
+  <div id="stars-container"></div>
+  <div class="scenery-ground green" id="sground"></div>
+  <div class="tree t1"><div class="tree-top" id="tt1"></div><div class="tree-trunk"></div></div>
+  <div class="tree t2"><div class="tree-top" id="tt2"></div><div class="tree-trunk"></div></div>
+  <div class="tree t3"><div class="tree-top" id="tt3"></div><div class="tree-trunk"></div></div>
+  <div class="tree t4"><div class="tree-top" id="tt4"></div><div class="tree-trunk"></div></div>
+  <div class="flowers"><span class="flower">🌸</span><span class="flower">🌷</span><span class="flower">🌺</span><span class="flower">🌸</span><span class="flower">🌷</span><span class="flower">🌺</span><span class="flower">🌸</span><span class="flower">🌷</span></div>
+  <div class="day-lbl" id="dlbl"></div>
+
+  <!-- Boy -->
+  <div class="char" id="boy-char">
+    <img class="char-img" id="boy-img" src="boy_normal.png" alt="Khaja" />
+    <div class="char-name">Khaja</div>
+  </div>
+  <!-- Girl -->
+  <div class="char" id="girl-char">
+    <img class="char-img" id="girl-img" src="girl_neutral.png" alt="Roja" />
+    <div class="char-name">Roja</div>
+  </div>
+
+  <div class="notif-pop" id="notif">
+    <div class="np-ico">💬</div>
+    <div class="np-body"><div class="np-app">Message</div><div class="np-text">Khaja sent you a message</div></div>
+  </div>
+  <div class="thought" id="thought"></div>
+</div>
+
+<!-- EFFORTS -->
+<div class="sc" id="efforts">
+  <div class="et">All of this…<span class="ac">happened because of my mistake 💔</span></div>
+  <p class="es">I pushed too far. I said things I shouldn't have.<br>And then I spent every day trying to fix what I broke.</p>
+  <div class="el" id="elist">
+    <div class="ei"><div class="eic">🙏</div><div><div class="ew">Sent a long sincere apology</div><div class="ed">Took full responsibility for my words</div><div class="eb">No response</div></div></div>
+    <div class="ei"><div class="eic">🕊️</div><div><div class="ew">Respected her space</div><div class="ed">Told her I understand she needs time</div><div class="eb">No response</div></div></div>
+    <div class="ei"><div class="eic">🌙</div><div><div class="ew">Sent Eid Mubarak wishes</div><div class="ed">Tried to reconnect on a special day</div><div class="eb">No response</div></div></div>
+    <div class="ei"><div class="eic">🍦</div><div><div class="ew">Got ice cream & sent photos</div><div class="ed">Just wanted to make her smile</div><div class="eb">No response</div></div></div>
+    <div class="ei"><div class="eic">😂</div><div><div class="ew">Shared funny moments from my day</div><div class="ed">Tried keeping things light</div><div class="eb">No response</div></div></div>
+    <div class="ei"><div class="eic">💕</div><div><div class="ew">Sent a fun Valentine's link</div><div class="ed">Hoped something playful would break the ice</div><div class="eb">No response</div></div></div>
+    <div class="ei"><div class="eic">😔</div><div><div class="ew">Said goodbye</div><div class="ed">"I feel like I lost a good person. Miss you."</div><div class="eb">No response</div></div></div>
+    <div class="ei"><div class="eic">💻</div><div><div class="ew">Built an entire website</div><div class="ed">3+ hours coding an apology page from scratch</div><div class="eb">No response</div></div></div>
+  </div>
+  <div class="ef">
+    <div class="efe">🥀</div>
+    <h2>My Roja 🤗 all I ever wanted was a chance</h2>
+    <p>I'm not telling you this to make you feel guilty.<br>I'm telling you so you know <strong>how much you mean to me</strong>.<br><br>Every message. Every morning text. Every effort.<br>All of it because <strong>I made a mistake</strong><br>and it brought us this far apart.<br><br>I can't undo what I did.<br>But I hope you see that<br><strong>I never stopped caring. Not for one second.</strong><br><br>Whenever you're ready — I'll be here. 🤍</p>
+    <div class="sg">— Khaja</div>
+    <div class="hs">💔 🤍 💔 🤍 💔</div>
+  </div>
+
+  <!-- Response Section -->
+  <div class="resp-box" id="resp-box">
+    <label>💬 If you want to say anything…</label>
+    <div class="resp-chips">
+      <span class="resp-chip" data-t="I need more time">🕊️ Need time</span>
+      <span class="resp-chip" data-t="Let's talk in person">🤝 Talk in person</span>
+      <span class="resp-chip" data-t="I'm still upset">😤 Still upset</span>
+      <span class="resp-chip" data-t="I appreciate the effort">💕 I appreciate it</span>
+      <span class="resp-chip" data-t="Okay, one chance">🤍 One chance</span>
+    </div>
+    <textarea class="resp-ta" id="resp-ta" placeholder="Or write anything you want..."></textarea>
+    <button class="btn btn-send" id="btn-send">Send to Khaja 💌</button>
+    <div class="send-ok" id="send-ok">💕 Your message has been sent. Thank you for reading this far, Roja. It means the world. 🤍</div>
+  </div>
+</div>
+
+<script>
+/* ═══ RAIN ═══ */
+const rc=document.getElementById('rain-canvas'),rx=rc.getContext('2d'),rDrops=[];
+function rResize(){rc.width=innerWidth;rc.height=innerHeight}
+rResize();addEventListener('resize',rResize);
+setInterval(()=>{rDrops.push({x:Math.random()*rc.width,y:-10,vy:3+Math.random()*5,len:10+Math.random()*18,op:.06+Math.random()*.12})},35);
+function rDraw(){rx.clearRect(0,0,rc.width,rc.height);for(let i=rDrops.length-1;i>=0;i--){const d=rDrops[i];d.y+=d.vy;if(d.y>rc.height+30){rDrops.splice(i,1);continue}rx.strokeStyle=`rgba(174,214,241,${d.op})`;rx.lineWidth=1;rx.beginPath();rx.moveTo(d.x,d.y);rx.lineTo(d.x+.5,d.y+d.len);rx.stroke()}requestAnimationFrame(rDraw)}
+rDraw();
+
+/* ═══ HELPERS ═══ */
+const $=id=>document.getElementById(id);
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+function showSc(id){document.querySelectorAll('.sc').forEach(s=>s.classList.remove('on'));$(id).classList.add('on')}
+
+/* Stars */
+const starsC=$('stars-container');
+for(let i=0;i<40;i++){const s=document.createElement('div');s.className='star';s.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*50}%;animation-delay:${Math.random()*3}s`;starsC.appendChild(s)}
+
+/* Petals */
+const stage=$('stage');
+for(let i=0;i<12;i++){const p=document.createElement('div');p.className='petal';p.style.left=Math.random()*100+'%';p.style.animationDuration=(5+Math.random()*8)+'s';p.style.animationDelay=Math.random()*10+'s';p.style.width=(5+Math.random()*6)+'px';p.style.height=(5+Math.random()*6)+'px';stage.appendChild(p)}
+
+/* No canvas needed - using mix-blend-mode:multiply on img elements */
+
+/* ═══ DATA ═══ */
+const days=[
+  {label:'Day 1',thought:'Maybe she\'ll see it and reply… 🤞',mood:'normal',bg:'mood-hopeful',sky:'sun',ground:'green',treeDark:false,stars:false},
+  {label:'Day 2',thought:'Still nothing… let me try again.',mood:'normal',bg:'mood-waiting',sky:'sun',ground:'green',treeDark:false,stars:false},
+  {label:'Day 3 — Eid',thought:'It\'s Eid. Maybe today… 🤲',mood:'sad',bg:'mood-waiting',sky:'sunset',ground:'green',treeDark:false,stars:false},
+  {label:'Day 5',thought:'I just want to make her smile…',mood:'sad',bg:'mood-sad',sky:'sunset',ground:'dusk',treeDark:false,stars:false},
+  {label:'Day 6',thought:'Why won\'t she respond? 😔',mood:'hurt',bg:'mood-hurt',sky:'moon',ground:'dusk',treeDark:true,stars:true},
+  {label:'Day 7',thought:'Maybe I should just stop… 😢',mood:'hurt',bg:'mood-dark',sky:'moon',ground:'night',treeDark:true,stars:true},
+  {label:'Day 8 — Today',thought:'8 messages. Zero replies. 💔',mood:'crying',bg:'mood-dark',sky:'moon',ground:'night',treeDark:true,stars:true},
+];
+
+const boyImgs={normal:'boy_normal.png',sad:'boy_sad.png',hurt:'boy_crying.png',crying:'boy_crying.png'};
+
+function getGirlImg(state) {
+  if (state === 'swiping') return 'girl_swiping.png';
+  return 'girl_neutral.png';
+}
+
+/* ═══ SET MOOD ═══ */
+function setMood(day){
+  $('scene-bg').className='scene-bg '+day.bg;
+  $('celestial').className='celestial '+day.sky;
+  $('sground').className='scenery-ground '+day.ground;
+  const dk=day.treeDark?'dark':'';
+  ['tt1','tt2','tt3','tt4'].forEach(id=>{$(id).className='tree-top '+dk});
+  document.querySelectorAll('.star').forEach(s=>{day.stars?s.classList.add('show'):s.classList.remove('show')});
+}
+
+/* ═══ ANIMATION ═══ */
+async function run(){
+  showSc('stage');
+  setMood(days[0]);
+  await wait(500);
+
+  $('boy-img').src = boyImgs.normal;
+  $('girl-img').src = getGirlImg('neutral');
+
+  $('boy-char').classList.add('on');
+  await wait(400);
+  $('girl-char').classList.add('on');
+  await wait(800);
+
+  for(let d=0;d<days.length;d++){
+    const day=days[d];
+    setMood(day);
+
+    $('dlbl').textContent=day.label;
+    $('dlbl').classList.add('on');
+    await wait(1000);
+
+    // Update boy
+    $('boy-char').classList.remove('normal','sad','hurt','crying','typing');
+    $('boy-char').classList.add(day.mood);
+    $('boy-img').src = boyImgs[day.mood];
+
+    // Reset girl
+    $('girl-img').src = getGirlImg('neutral');
+
+    // Boy typing
+    $('boy-char').classList.add('typing');
+    await wait(1800);
+    $('boy-char').classList.remove('typing');
+
+    // Message flies
+    const fly=document.createElement('div');
+    fly.className='fly-bubble';fly.textContent='💬';
+    const br=$('boy-char').getBoundingClientRect();
+    fly.style.left=(br.right-10)+'px';fly.style.top=(br.top+br.height*.3)+'px';
+    fly.style.transition='all 1s cubic-bezier(.4,0,.2,1)';fly.style.opacity='1';
+    document.body.appendChild(fly);
+    await wait(50);
+
+    const gr=$('girl-char').getBoundingClientRect();
+    fly.style.left=(gr.left-15)+'px';fly.style.top=(gr.top+gr.height*.25)+'px';
+    fly.style.opacity='0';fly.style.transform='scale(.4)';
+    await wait(1000);fly.remove();
+
+    // Notification
+    $('notif').classList.add('on');
+    await wait(2200);
+
+    // Girl swipes notification away
+    $('girl-img').src = getGirlImg('swiping');
+    $('girl-char').classList.add('swiping');
+    $('notif').classList.add('gone');
+    await wait(600);
+    $('girl-char').classList.remove('swiping');
+    $('notif').classList.remove('on','gone');
+    $('girl-img').src = getGirlImg('neutral');
+    await wait(300);
+
+    // Heartbreak emoji
+    const hb=document.createElement('div');hb.className='hb';
+    hb.textContent=d<3?'😔':d<5?'💔':'😢';
+    hb.style.left=(br.left+br.width/2-8)+'px';hb.style.top=(br.top-5)+'px';
+    hb.style.transition='all 1.5s ease-out';hb.style.opacity='1';
+    document.body.appendChild(hb);await wait(50);
+    hb.style.opacity='0';hb.style.transform='translateY(-50px) scale(1.5)';
+    setTimeout(()=>hb.remove(),1500);
+
+    // Thought bubble
+    $('thought').textContent=day.thought;
+    $('thought').classList.add('on');
+    await wait(2500);
+    $('thought').classList.remove('on');
+    await wait(300);
+
+    $('dlbl').classList.remove('on');
+    if(d<days.length-1)await wait(500);
+  }
+
+  // Final
+  $('boy-char').classList.remove('normal','sad','hurt');
+  $('boy-char').classList.add('crying');
+  $('boy-img').src = boyImgs.crying;
+  $('thought').textContent='All because of my mistake… 💔';
+  $('thought').classList.add('on');
+  await wait(3500);
+  $('thought').classList.remove('on');
+  await wait(1000);
+
+  showSc('efforts');
+  await wait(600);
+  const items=document.querySelectorAll('.ei');
+  for(let i=0;i<items.length;i++){await wait(350);items[i].classList.add('on')}
+}
+
+$('btn-go').addEventListener('click',()=>run());
+
+/* ═══ RESPONSE CHIPS ═══ */
+document.querySelectorAll('.resp-chip').forEach(chip=>{
+  chip.addEventListener('click',()=>{
+    chip.classList.toggle('sel');
+  });
+});
+
+/* ═══ SEND RESPONSE (FormSubmit + EmailJS fallback) ═══ */
+$('btn-send').addEventListener('click',()=>{
+  const selected=[];
+  document.querySelectorAll('.resp-chip.sel').forEach(c=>selected.push(c.dataset.t));
+  const freeText=$('resp-ta').value.trim();
+
+  let msg='';
+  if(selected.length>0) msg+='Selected: '+selected.join(', ')+'\n';
+  if(freeText) msg+='Message: '+freeText;
+  if(!selected.length&&!freeText) msg='She viewed the full story and all efforts. No message left, but she read everything. 🤍';
+
+  // Method 1: FormSubmit
+  const fd=new FormData();
+  fd.append('name','Roja Allu');
+  fd.append('email','roja@story.page');
+  fd.append('_subject','💔 Roja responded to your story page!');
+  fd.append('message',msg);
+  fd.append('_captcha','false');
+  fd.append('_template','box');
+  fetch('https://formsubmit.co/ajax/khajask141@gmail.com',{method:'POST',body:fd}).catch(()=>{});
+
+  // Method 2: Web3Forms (free, no activation needed)
+  fetch('https://api.web3forms.com/submit',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      access_key:'YOUR_WEB3FORMS_KEY',
+      subject:'💔 Roja responded to your story page!',
+      from_name:'Roja Allu',
+      message:msg
+    })
+  }).catch(()=>{});
+
+  // Show success
+  $('btn-send').style.display='none';
+  $('send-ok').classList.add('on');
+});
+</script>
+</body>
+</html>
